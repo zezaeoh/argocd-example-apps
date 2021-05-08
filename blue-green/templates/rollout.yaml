@@ -15,10 +15,30 @@ spec:
       app: {{ template "helm-guestbook.name" . }}
       release: {{ .Release.Name }}
   strategy:
-    blueGreen:
-      activeService: {{ template "helm-guestbook.fullname" . }}
-      previewService: {{ template "helm-guestbook.fullname" . }}-preview
-      autoPromotionEnabled: false
+    replicas: 5
+    canary:
+      steps:
+      - setWeight: 20
+      - pause: {}
+      - setWeight: 40
+      - pause: {}
+      - setWeight: 60
+      - pause: {duration: 10}
+      - setWeight: 80
+      - pause: {duration: 10}
+
+      stableService: {{ template "helm-guestbook.fullname" . }}
+      canaryService: {{ template "helm-guestbook.fullname" . }}-preview
+      canaryMetadata:
+        annotations:
+          role: canary
+        labels:
+          role: canary
+      stableMetadata:
+        annotations:
+          role: stable
+        labels:
+          role: stable
   template:
     metadata:
       labels:
