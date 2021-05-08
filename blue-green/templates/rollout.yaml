@@ -15,7 +15,6 @@ spec:
       app: {{ template "helm-guestbook.name" . }}
       release: {{ .Release.Name }}
   strategy:
-    replicas: 5
     canary:
       steps:
       - setWeight: 20
